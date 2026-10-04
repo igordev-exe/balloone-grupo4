@@ -1,0 +1,11 @@
+* text=auto eol=lf
+*.SchDoc binary
+*.PcbDoc binary
+*.SchLib binary
+*.PcbLib binary
+*.stl binary
+*.step binary
+*.f3d binary
+*.png binary
+*.jpg binary
+*.pdf binary
