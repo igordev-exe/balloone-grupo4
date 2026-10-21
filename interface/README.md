@@ -118,7 +118,7 @@ A interface usa a linguagem do **Sci-fi UI Kit (Free) (Community)** do Figma, e 
 | Ícones do kit (engrenagem, volume, alerta, relógio, sinal, ✓, ✕) | Botões e status |
 | Pacote de elementos HUD brancos (alvo, chevrons, código de barras, cubo, triângulos, espiral, painel) | Mira, setas de avanço, decoração do autoteste e indicador de carregamento |
 
-Os PNGs estão em `src/assets/kit/`, recortados do kit com fundo transparente e tingidos por CSS (`mask-image`). O quadro [DANGER] e os contadores foram redesenhados em SVG para receber texto e números ao vivo.
+Os PNGs estão em `src/assets/kit/`.
 
 **Cores.** As cores seguem a paleta do kit:
 
