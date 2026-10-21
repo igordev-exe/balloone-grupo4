@@ -9,3 +9,4 @@
 *.png binary
 *.jpg binary
 *.pdf binary
+*.bat text eol=crlf
