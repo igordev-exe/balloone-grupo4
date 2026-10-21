@@ -41,4 +41,4 @@ Fora do repositório:
 
 Melissa de Sousa Santos · Rafael Rodrigues Alencar · André Luís Livio Alvaro dos Santos ·
 Pedro Henrique Galdino de Andrade Wollmann · Karen de Oliveira Ribeiro · Heitor Mendes Fernandes ·
-Igor Alves · Italo Araújo Silva · Pedro Falcão Moura · Lucas Emanuel de Sousa Araújo
+Igor Alves Rodrigues · Italo Araújo Silva · Pedro Falcão Moura · Lucas Emanuel de Sousa Araújo
