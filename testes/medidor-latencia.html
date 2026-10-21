@@ -1,0 +1,384 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Medidor de vídeo — Balloone G4</title>
+<style>
+  :root { --bg:#0e1116; --panel:#171b22; --line:#2a313c; --ink:#e8edf3; --quiet:#9aa6b6; --accent:#4ea1ff; --ok:#3fb950; --warn:#e3b341; --bad:#f85149; }
+  * { box-sizing:border-box; }
+  body { margin:0; background:var(--bg); color:var(--ink); font:15px/1.4 system-ui, Segoe UI, Arial, sans-serif; }
+  header { padding:14px 20px; border-bottom:1px solid var(--line); display:flex; gap:12px 16px; align-items:center; flex-wrap:wrap; }
+  header h1 { font-size:17px; margin:0 12px 0 0; }
+  label { color:var(--quiet); font-size:13px; }
+  input, select, button { font:inherit; color:var(--ink); background:var(--panel); border:1px solid var(--line); border-radius:6px; padding:6px 9px; }
+  input[type=text] { width:260px; max-width:100%; }
+  button { cursor:pointer; }
+  button:disabled { opacity:.5; cursor:not-allowed; }
+  button.primary { background:var(--accent); border-color:var(--accent); color:#06121f; font-weight:600; }
+  main { display:grid; grid-template-columns: 1fr 1fr; gap:16px; padding:16px 20px; }
+  .clock { background:#000; border-radius:10px; display:flex; align-items:center; justify-content:center; min-height:300px; }
+  #relogio { font: 700 clamp(64px, 11vw, 150px)/1 ui-monospace, Consolas, monospace; color:#fff; letter-spacing:2px; }
+  .video { position:relative; background:#000; border-radius:10px; display:flex; align-items:center; justify-content:center; min-height:300px; overflow:hidden; }
+  .video img { max-width:100%; max-height:420px; }
+  .video .vazio { color:var(--quiet); padding:20px; text-align:center; }
+  .osd { position:absolute; left:10px; top:10px; padding:4px 8px; border-radius:4px; background:#000c; font:600 13px ui-monospace, Consolas, monospace; }
+  section { padding:0 20px 20px; }
+  .card { background:var(--panel); border:1px solid var(--line); border-radius:10px; padding:14px 16px; margin-bottom:16px; }
+  .card h2 { font-size:15px; margin:0 0 4px; }
+  .row { display:flex; gap:12px; align-items:end; flex-wrap:wrap; }
+  .row > div { display:flex; flex-direction:column; gap:4px; }
+  .stats { display:flex; gap:24px; flex-wrap:wrap; margin-top:10px; }
+  .stat b { display:block; font-size:24px; font-variant-numeric: tabular-nums; }
+  .stat span { color:var(--quiet); font-size:12px; }
+  .stat.warn b { color:var(--warn); } .stat.bad b { color:var(--bad); }
+  .tabela { overflow-x:auto; }
+  table { width:100%; border-collapse:collapse; margin-top:10px; }
+  th, td { text-align:left; padding:6px 8px; border-bottom:1px solid var(--line); font-variant-numeric: tabular-nums; white-space:nowrap; }
+  th { color:var(--quiet); font-weight:500; font-size:13px; }
+  .passos { color:var(--quiet); font-size:13px; margin:6px 0 0; padding-left:18px; }
+  .passos li { margin:3px 0; }
+  .nota { color:var(--quiet); font-size:13px; margin:6px 0 0; }
+  .erro { color:var(--bad); }
+  .barra { height:6px; background:var(--line); border-radius:3px; margin-top:10px; overflow:hidden; }
+  .barra i { display:block; height:100%; width:0; background:var(--accent); }
+  @media (max-width: 900px) { main { grid-template-columns:1fr; } }
+</style>
+</head>
+<body>
+<header>
+  <h1>Medidor de vídeo · T-01 e T-02</h1>
+  <div><label for="url">Endereço do stream&nbsp;</label><input id="url" type="text" placeholder="http://192.168.0.50:81/stream"></div>
+  <button class="primary" id="conectar">Conectar</button>
+  <span id="estado" style="color:var(--quiet)">sem vídeo</span>
+</header>
+
+<main>
+  <div class="clock"><div id="relogio">00.000</div></div>
+  <div class="video" id="caixaVideo">
+    <div class="vazio">Cole o endereço do stream da ESP32 e clique em Conectar.<br>Depois aponte a câmera para o relógio ao lado.</div>
+  </div>
+</main>
+
+<section>
+  <div class="card">
+    <h2>Configuração do teste</h2>
+    <p class="nota">Vale para as duas medições. Troque a resolução na página da própria câmera (o endereço sem :81/stream) e anote aqui a mesma.</p>
+    <div class="row" style="margin-top:8px">
+      <div><label for="fw">Firmware</label><input id="fw" value="CameraWebServer" style="width:150px"></div>
+      <div><label for="res">Resolução</label>
+        <select id="res"><option>QQVGA</option><option selected>QVGA</option><option>CIF</option><option>HVGA</option><option>VGA</option><option>SVGA</option></select></div>
+      <div><label for="jpeg">Qualidade JPEG</label><input id="jpeg" type="number" value="12" style="width:80px"></div>
+      <div><label for="dist">Distância (m)</label><input id="dist" type="number" value="1" step="0.5" style="width:90px"></div>
+      <div><label for="rede">Rede</label><select id="rede"><option>Roteador (STA)</option><option>Ponto de acesso (AP)</option></select></div>
+    </div>
+  </div>
+
+  <!-- T-02 -->
+  <div class="card">
+    <h2>FPS recebido e travamentos · T-02</h2>
+    <p class="nota">Conta os quadros que chegam de fato ao notebook, com o tamanho de cada um. O FPS do monitor serial é o que a placa envia; a diferença entre os dois é o que se perde no Wi-Fi. Travamento = intervalo entre dois quadros maior que o limite abaixo.</p>
+    <div class="stats">
+      <div class="stat" id="cFps"><b id="fFps">–</b><span>FPS agora (últimos 2 s)</span></div>
+      <div class="stat"><b id="fKb">–</b><span>tamanho médio do quadro (KB)</span></div>
+      <div class="stat"><b id="fRate">–</b><span>taxa (Mbit/s)</span></div>
+      <div class="stat" id="cGap"><b id="fGap">–</b><span>maior intervalo (ms, últimos 10 s)</span></div>
+    </div>
+    <div class="row" style="margin-top:14px">
+      <div><label for="dur">Duração da medição</label><select id="dur"><option value="30" selected>30 s</option><option value="60">60 s</option><option value="900">15 min (T-08)</option></select></div>
+      <div><label for="lim">Limite de travamento (ms)</label><input id="lim" type="number" value="500" step="50" style="width:110px"></div>
+      <button class="primary" id="medir" disabled>Medir FPS</button>
+      <span id="msgFps" class="nota"></span>
+    </div>
+    <div class="barra"><i id="progresso"></i></div>
+    <div class="tabela">
+      <table>
+        <thead><tr><th>#</th><th>Resolução</th><th>JPEG</th><th>Rede</th><th>Dist. (m)</th><th>Duração (s)</th><th>FPS médio</th><th>FPS pior seg.</th><th>KB/quadro</th><th>Maior intervalo (ms)</th><th>Travamentos</th><th></th></tr></thead>
+        <tbody id="linhasFps"></tbody>
+      </table>
+    </div>
+    <div class="row" style="margin-top:12px">
+      <button id="csvFps">Baixar CSV do T-02</button>
+    </div>
+  </div>
+
+  <!-- T-01 -->
+  <div class="card">
+    <h2>Latência ponta a ponta · T-01</h2>
+    <ol class="passos">
+      <li>Aponte a câmera para o <b>relógio preto</b>, a uns 20–40 cm da tela, até os números aparecerem nítidos no vídeo.</li>
+      <li>Tire um print da tela inteira (Windows: <b>Win + Shift + S</b> · Mac: <b>Cmd + Shift + 3</b>). O print congela os dois relógios no mesmo instante.</li>
+      <li>No print, leia o número do relógio <b>real</b> (esquerda) e o número que aparece <b>dentro do vídeo</b>. Digite os dois abaixo.</li>
+      <li>Repita 10 vezes por configuração. Latência = real − vídeo. A precisão é de cerca de ±17 ms (a tela atualiza a 60 Hz).</li>
+    </ol>
+    <div class="row" style="margin-top:12px">
+      <div><label for="real">Relógio real (ex.: 37.482)</label><input id="real" type="text" inputmode="decimal" style="width:150px"></div>
+      <div><label for="vid">Relógio no vídeo (ex.: 37.301)</label><input id="vid" type="text" inputmode="decimal" style="width:150px"></div>
+      <button class="primary" id="add">Registrar</button>
+      <span id="msg" class="erro"></span>
+    </div>
+    <div class="stats">
+      <div class="stat"><b id="sN">0</b><span>medições</span></div>
+      <div class="stat"><b id="sMed">–</b><span>mediana (ms)</span></div>
+      <div class="stat"><b id="sMedia">–</b><span>média (ms)</span></div>
+      <div class="stat"><b id="sMin">–</b><span>melhor (ms)</span></div>
+      <div class="stat"><b id="sMax">–</b><span>pior (ms)</span></div>
+    </div>
+    <div class="tabela">
+      <table>
+        <thead><tr><th>#</th><th>Resolução</th><th>JPEG</th><th>Rede</th><th>Real</th><th>No vídeo</th><th>Latência (ms)</th><th></th></tr></thead>
+        <tbody id="linhas"></tbody>
+      </table>
+    </div>
+    <div class="row" style="margin-top:12px">
+      <button id="csv">Baixar CSV do T-01</button>
+      <button id="limpar">Limpar tudo</button>
+    </div>
+  </div>
+</section>
+
+<script>
+  const $ = id => document.getElementById(id);
+  const hoje = () => new Date().toISOString().slice(0, 10);
+  const cfg = () => ({ fw:$('fw').value, res:$('res').value, jpeg:$('jpeg').value, rede:$('rede').value, dist:$('dist').value });
+
+  function baixar(nome, texto) {
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(new Blob([texto], { type:'text/csv' }));
+    a.download = nome;
+    a.click();
+    setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+  }
+
+  // ── Relógio: segundos (00–99) + milissegundos, alto contraste para a câmera ler ──
+  const relogio = $('relogio');
+  (function tick() {
+    const t = Date.now() % 100000;
+    relogio.textContent = String(Math.floor(t / 1000)).padStart(2,'0') + '.' + String(t % 1000).padStart(3,'0');
+    requestAnimationFrame(tick);
+  })();
+
+  // ── Vídeo ──
+  // O CameraWebServer aceita UM cliente por vez. Por isso o medidor abre uma conexão só:
+  // lê o stream MJPEG com fetch, separa os quadros (cada parte traz Content-Length),
+  // conta tempo e tamanho de cada um e mostra o quadro na tela.
+  // Se o navegador não deixar ler o stream (CORS), cai para uma <img> comum: o vídeo aparece,
+  // a latência pode ser medida, mas o FPS não.
+  const estado = $('estado'), caixa = $('caixaVideo');
+  try { $('url').value = localStorage.getItem('balloone_stream') || ''; } catch (e) {}
+  let ctrl = null, img = null, osd = null, urlAtual = null;
+  const quadros = []; // { t, bytes } dos últimos 15 s
+  let gravacao = null;
+
+  function setEstado(txt, cor) { estado.textContent = txt; estado.style.color = cor; }
+
+  $('conectar').onclick = () => {
+    const u = $('url').value.trim();
+    if (!u) return;
+    try { localStorage.setItem('balloone_stream', u); } catch (e) {}
+    abrir(u);
+  };
+
+  function montarVideo() {
+    caixa.innerHTML = '';
+    img = new Image();
+    img.alt = 'Vídeo da ESP32-CAM';
+    osd = document.createElement('div');
+    osd.className = 'osd';
+    caixa.append(img, osd);
+  }
+
+  async function abrir(u) {
+    if (ctrl) ctrl.abort();
+    ctrl = new AbortController();
+    quadros.length = 0;
+    montarVideo();
+    setEstado('conectando…', 'var(--quiet)');
+    $('medir').disabled = true;
+    try {
+      const r = await fetch(u, { signal: ctrl.signal, cache: 'no-store' });
+      if (!r.ok || !r.body) throw new Error('HTTP ' + r.status);
+      setEstado('recebendo vídeo · FPS disponível', 'var(--ok)');
+      $('medir').disabled = false;
+      await ler(r.body.getReader());
+    } catch (e) {
+      if (e.name === 'AbortError') return;
+      // Sem leitura do stream: mostra numa <img> comum.
+      img.onload = () => setEstado('recebendo vídeo · FPS indisponível (o navegador bloqueou a leitura do stream)', 'var(--warn)');
+      img.onerror = () => setEstado('não conectou: confira o endereço e se o notebook está na mesma rede da placa', 'var(--bad)');
+      img.src = u + (u.includes('?') ? '&' : '?') + 't=' + Date.now();
+      osd.textContent = '';
+    }
+  }
+
+  const enc = new TextEncoder();
+  const CL = enc.encode('Content-Length:'), FIM = enc.encode('\r\n\r\n');
+  function achar(buf, agulha, de = 0) {
+    outer: for (let i = de; i <= buf.length - agulha.length; i++) {
+      for (let j = 0; j < agulha.length; j++) if (buf[i + j] !== agulha[j]) continue outer;
+      return i;
+    }
+    return -1;
+  }
+
+  async function ler(reader) {
+    let buf = new Uint8Array(0);
+    for (;;) {
+      const { value, done } = await reader.read();
+      if (done) { setEstado('o stream terminou: clique em Conectar de novo', 'var(--bad)'); $('medir').disabled = true; return; }
+      const novo = new Uint8Array(buf.length + value.length);
+      novo.set(buf); novo.set(value, buf.length); buf = novo;
+      for (;;) {
+        const c = achar(buf, CL);
+        if (c < 0) { if (buf.length > 1 << 20) buf = buf.slice(-64); break; }
+        const f = achar(buf, FIM, c);
+        if (f < 0) break;
+        const n = parseInt(new TextDecoder().decode(buf.slice(c + CL.length, f)), 10);
+        const ini = f + FIM.length;
+        if (!(n > 0)) { buf = buf.slice(ini); continue; }
+        if (buf.length < ini + n) break;
+        quadro(buf.slice(ini, ini + n));
+        buf = buf.slice(ini + n);
+      }
+    }
+  }
+
+  let ultimoUrl = null;
+  function quadro(jpg) {
+    const t = performance.now();
+    quadros.push({ t, bytes: jpg.length });
+    while (quadros.length && t - quadros[0].t > 15000) quadros.shift();
+    if (gravacao) gravacao.quadros.push({ t, bytes: jpg.length });
+    const url = URL.createObjectURL(new Blob([jpg], { type: 'image/jpeg' }));
+    img.onload = () => { if (ultimoUrl && ultimoUrl !== url) URL.revokeObjectURL(ultimoUrl); ultimoUrl = url; };
+    img.src = url;
+  }
+
+  // Painel ao vivo, 4 vezes por segundo
+  setInterval(() => {
+    if (!quadros.length) return;
+    const agora = performance.now();
+    const ult2 = quadros.filter(q => agora - q.t <= 2000);
+    const fps = ult2.length / 2;
+    const ult10 = quadros.filter(q => agora - q.t <= 10000);
+    let gap = 0;
+    for (let i = 1; i < ult10.length; i++) gap = Math.max(gap, ult10[i].t - ult10[i - 1].t);
+    if (ult10.length) gap = Math.max(gap, agora - ult10[ult10.length - 1].t);
+    const kb = ult2.length ? ult2.reduce((a, q) => a + q.bytes, 0) / ult2.length / 1024 : 0;
+    const mbit = ult2.reduce((a, q) => a + q.bytes, 0) * 8 / 2 / 1e6;
+    const lim = +$('lim').value || 500;
+    $('fFps').textContent = fps.toFixed(1).replace('.', ',');
+    $('fKb').textContent = kb.toFixed(1).replace('.', ',');
+    $('fRate').textContent = mbit.toFixed(2).replace('.', ',');
+    $('fGap').textContent = Math.round(gap);
+    $('cGap').className = 'stat' + (gap > lim ? ' bad' : gap > lim / 2 ? ' warn' : '');
+    $('cFps').className = 'stat' + (fps < 10 ? ' warn' : '');
+    if (osd) osd.textContent = fps.toFixed(1) + ' fps · ' + kb.toFixed(1) + ' KB';
+  }, 250);
+
+  // ── T-02: medição com duração fixa ──
+  const resumos = [];
+  $('medir').onclick = () => {
+    if (gravacao) { terminar(true); return; }
+    const dur = +$('dur').value;
+    gravacao = { ini: performance.now(), dur, quadros: [], cfg: cfg(), lim: +$('lim').value || 500 };
+    $('medir').textContent = 'Parar';
+    $('msgFps').textContent = 'medindo… não mexa na câmera nem na rede';
+    gravacao.timer = setInterval(() => {
+      const p = (performance.now() - gravacao.ini) / (dur * 1000);
+      $('progresso').style.width = Math.min(100, p * 100) + '%';
+      if (p >= 1) terminar(false);
+    }, 200);
+  };
+
+  function terminar(interrompida) {
+    const g = gravacao;
+    clearInterval(g.timer);
+    gravacao = null;
+    $('medir').textContent = 'Medir FPS';
+    $('progresso').style.width = '0';
+    const fim = performance.now();
+    const seg = (fim - g.ini) / 1000;
+    const q = g.quadros;
+    if (q.length < 2) { $('msgFps').textContent = 'Nenhum quadro chegou durante a medição.'; return; }
+    // FPS de cada segundo cheio
+    const porSeg = [];
+    for (let s = 0; s < Math.floor(seg); s++) porSeg.push(q.filter(x => x.t - g.ini >= s * 1000 && x.t - g.ini < (s + 1) * 1000).length);
+    let maior = q[0].t - g.ini, trav = 0;
+    for (let i = 1; i < q.length; i++) {
+      const d = q[i].t - q[i - 1].t;
+      maior = Math.max(maior, d);
+      if (d > g.lim) trav++;
+    }
+    maior = Math.max(maior, fim - q[q.length - 1].t);
+    resumos.push({
+      ...g.cfg, dur: Math.round(seg), fps: q.length / seg, pior: porSeg.length ? Math.min(...porSeg) : 0,
+      kb: q.reduce((a, x) => a + x.bytes, 0) / q.length / 1024, maior: Math.round(maior), trav, lim: g.lim,
+      porSeg,
+    });
+    $('msgFps').textContent = interrompida ? 'Medição interrompida: o resumo usa só o tempo medido.' : 'Pronto. Troque a resolução e meça de novo.';
+    renderFps();
+  }
+
+  function renderFps() {
+    const f = (v, d = 1) => v.toFixed(d).replace('.', ',');
+    $('linhasFps').innerHTML = resumos.map((r, i) =>
+      `<tr><td>${i + 1}</td><td>${r.res}</td><td>${r.jpeg}</td><td>${r.rede}</td><td>${r.dist}</td><td>${r.dur}</td>` +
+      `<td><b>${f(r.fps)}</b></td><td>${r.pior}</td><td>${f(r.kb)}</td><td>${r.maior}</td><td>${r.trav}</td>` +
+      `<td><button data-i="${i}" class="delFps">remover</button></td></tr>`).join('');
+    document.querySelectorAll('.delFps').forEach(b => b.onclick = () => { resumos.splice(+b.dataset.i, 1); renderFps(); });
+  }
+
+  $('csvFps').onclick = () => {
+    if (!resumos.length) return;
+    const head = 'data,teste,firmware,resolucao,jpeg,rede,distancia_m,duracao_s,fps_medio,fps_pior_segundo,kb_por_quadro,maior_intervalo_ms,travamentos,limite_travamento_ms,fps_por_segundo';
+    const linhas = resumos.map(r => [hoje(), 'T-02', r.fw, r.res, r.jpeg, r.rede, r.dist, r.dur, r.fps.toFixed(2), r.pior, r.kb.toFixed(2), r.maior, r.trav, r.lim, '"' + r.porSeg.join(' ') + '"'].join(','));
+    baixar(`${hoje()}_T-02_fps-resolucao.csv`, head + '\n' + linhas.join('\n') + '\n');
+  };
+
+  // ── T-01: registro manual a partir do print ──
+  const dados = [];
+  function parseRel(v) {
+    v = v.trim().replace(',', '.');
+    if (!/^\d{1,2}(\.\d{1,3})?$/.test(v)) return null;
+    const [s, ms = '0'] = v.split('.');
+    return Number(s) * 1000 + Number(ms.padEnd(3, '0'));
+  }
+  function stats() {
+    const xs = dados.map(d => d.lat).sort((a,b) => a-b), n = xs.length;
+    $('sN').textContent = n;
+    if (!n) { ['sMed','sMedia','sMin','sMax'].forEach(i => $(i).textContent = '–'); return; }
+    const med = n % 2 ? xs[(n-1)/2] : (xs[n/2-1] + xs[n/2]) / 2;
+    $('sMed').textContent = Math.round(med);
+    $('sMedia').textContent = Math.round(xs.reduce((a,b) => a+b, 0) / n);
+    $('sMin').textContent = xs[0];
+    $('sMax').textContent = xs[n-1];
+  }
+  function render() {
+    $('linhas').innerHTML = dados.map((d, i) =>
+      `<tr><td>${i+1}</td><td>${d.res}</td><td>${d.jpeg}</td><td>${d.rede}</td><td>${d.realTxt}</td><td>${d.vidTxt}</td><td><b>${d.lat}</b></td>` +
+      `<td><button data-i="${i}" class="del">remover</button></td></tr>`).join('');
+    document.querySelectorAll('.del').forEach(b => b.onclick = () => { dados.splice(+b.dataset.i, 1); render(); });
+    stats();
+  }
+  $('add').onclick = () => {
+    const r = parseRel($('real').value), v = parseRel($('vid').value);
+    if (r === null || v === null) { $('msg').textContent = 'Use o formato 37.482'; return; }
+    let lat = r - v; if (lat < 0) lat += 100000;   // relógio vira de 99 para 00
+    if (lat > 5000) { $('msg').textContent = 'Mais de 5 s: confira se os números foram lidos do mesmo print'; return; }
+    $('msg').textContent = '';
+    dados.push({ ...cfg(), realTxt:$('real').value.trim(), vidTxt:$('vid').value.trim(), lat });
+    $('real').value = ''; $('vid').value = ''; $('real').focus();
+    render();
+  };
+  $('vid').addEventListener('keydown', e => { if (e.key === 'Enter') $('add').click(); });
+  $('limpar').onclick = () => { if (dados.length) { dados.length = 0; render(); } };
+  $('csv').onclick = () => {
+    if (!dados.length) return;
+    const head = 'data,teste,firmware,resolucao,jpeg,rede,distancia_m,latencia_ms,relogio_real,relogio_video';
+    const linhas = dados.map(d => [hoje(),'T-01',d.fw,d.res,d.jpeg,d.rede,d.dist,d.lat,d.realTxt,d.vidTxt].join(','));
+    baixar(`${hoje()}_T-01_latencia-${(dados[0].res || 'x').toLowerCase()}.csv`, head + '\n' + linhas.join('\n') + '\n');
+  };
+</script>
+</body>
+</html>
