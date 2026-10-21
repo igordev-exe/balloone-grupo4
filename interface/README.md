@@ -24,11 +24,6 @@ Precisa ser `localhost`. O Chrome só libera a Gamepad API e o Wake Lock (tela s
 
 **Funciona sem internet.** Quando o notebook está na rede do robô, não tem internet. Por isso as fontes e as bibliotecas vão dentro do build. A versão anterior puxava as fontes do Google Fonts e o fundo do vídeo do Unsplash, e as duas coisas falhariam na Praça Solar.
 
-## Link para o grupo (GitHub Pages)
-
-O workflow `.github/workflows/interface-pages.yml` (na raiz do repositório) publica a interface a cada push na `main` que mexa em `interface/`. Para ativar, vá em **Settings → Pages → Source: GitHub Actions**. O link fica `https://igordev-exe.github.io/balloone-grupo4/`.
-
-Pelo link, só o **Simulador** funciona. O Pages usa HTTPS, o robô usa HTTP, e o navegador bloqueia essa mistura. Para pilotar o robô, rode a interface no notebook (seção acima). A própria interface avisa isso quando aberta pelo link.
 
 ## Três jeitos de testar
 
