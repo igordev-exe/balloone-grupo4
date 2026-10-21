@@ -13,7 +13,7 @@ pnpm install
 pnpm dev                  # http://localhost:5173
 ```
 
-No dia da prova, sirva o build pelo próprio notebook:
+No dia da prova, vamos usar o build pelo próprio notebook:
 
 ```bash
 pnpm build
