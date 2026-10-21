@@ -50,7 +50,7 @@ O robô só se move na tela de **Pilotagem** com a gaveta de Ajustes fechada. Na
 ## Como ler a mira
 
 - **Cruz com ponto no centro:** é o ponto de estouro, onde o balão fica no quadro no instante em que a ponta do mecanismo encosta nele. Calibre em Ajustes → Mira com o robô real: encoste um balão na ponta e arraste a mira até o centro dele.
-- **Colchetes nos cantos (triângulos do kit):** têm o tamanho de um balão a 1 m. Se o balão preenche os colchetes, ele está a cerca de 1 m; se cabe com folga, está mais longe. O cálculo usa `BALLOON_DIAMETER_M` (0,22 m) e `CAMERA_FOV_DEG` (62°) em `src/config.ts`. O edital não dá o diâmetro, então meçam o balão real e ajustem.
+- **Colchetes nos cantos (triângulos do kit):** têm o tamanho de um balão a 1 m. Se o balão preenche os colchetes, ele está a cerca de 1 m; se cabe com folga, está mais longe. O cálculo usa `BALLOON_DIAMETER_M` (0,22 m) e `CAMERA_FOV_DEG` (62°) em `src/config.ts`. O edital não dá o diâmetro, então precisamos medir o balão depois.
 - **Linhas tracejadas:** a trajetória com a direção atual. Ficam âmbar em ré.
 - **Chevrons:** aparecem acima da mira quando o robô anda para a frente (vermelhos no turbo) e abaixo dela em ré.
 
