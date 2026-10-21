@@ -142,14 +142,6 @@ O **modo sol** (em Ajustes) tira o brilho, a varredura e a aberração cromátic
 | [@fontsource](https://fontsource.org) Russo One, Montserrat, Oxanium | OFL | Fontes empacotadas para funcionar sem internet |
 | [lucide-react](https://lucide.dev) | ISC | Só os ícones que o kit não tem (controle, gravar, tela cheia, exportar) |
 
-Também foram avaliadas e ficaram de fora:
-
-- **Arwes:** ainda em versão alfa.
-- **NyxUI:** a maior parte é paga e voltada para Next.js.
-- **Assets do Magnific/Freepik:** a licença muda de asset para asset.
-
-Os arquivos da Comunidade do Figma costumam sair sob CC BY 4.0. Antes de publicar, confira a licença na página do kit e dê crédito ao autor no relatório.
-
 ## Estrutura
 
 ```
