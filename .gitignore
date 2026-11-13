@@ -7,6 +7,9 @@
 .vscode/launch.json
 .vscode/ipch
 
+# Senha do Wi-Fi do robô (o repositório é público)
+firmware/include/secrets.h
+
 # Altium (arquivos gerados automaticamente)
 **/History/
 **/Project Logs for */

@@ -1,0 +1,13 @@
+# Simulador Wokwi (extensão "Wokwi Simulator" do VS Code).
+# 1. Compile o ambiente wokwi:  pio run -e wokwi
+# 2. No VS Code: F1 → "Wokwi: Start Simulator"
+[wokwi]
+version = 1
+firmware = '.pio/build/wokwi/firmware.bin'
+elf = '.pio/build/wokwi/firmware.elf'
+
+# A interface no notebook alcança o robô simulado por estas portas:
+# endereço 127.0.0.1, porta do WebSocket 8182 (a 82 do robô).
+[[net.forward]]
+from = "localhost:8182"
+to = "target:82"
