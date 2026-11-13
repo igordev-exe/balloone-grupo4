@@ -1,0 +1,201 @@
+BEGIN:VCALENDAR
+PRODID:-//Balloone G4//Cronograma Software//PT
+VERSION:2.0
+CALSCALE:GREGORIAN
+METHOD:PUBLISH
+X-WR-CALNAME:Titans
+X-WR-TIMEZONE:America/Sao_Paulo
+BEGIN:VEVENT
+DTSTART:20261114T170000Z
+DTEND:20261114T180000Z
+DTSTAMP:20261113T220000Z
+UID:sw-8ca1189df1bf25a7@balloone-g4
+STATUS:CONFIRMED
+SUMMARY:Titans · Software: reunião de arranque (online)
+DESCRIPTION:Até 1 h.\n- Aprovar o protocolo (v0.1 → v0.2)\n- Fechar a pi
+ nagem com a Eletrônica (D-001)\n- Confirmar a placa e quem fica com cada 
+ hardware\n- Dividir as frentes: A Rede · B Câmera · C Motores · D Inte
+ gração\nAté dom 15: todos com PlatformIO gravando o esqueleto\; D sobe 
+ o esqueleto dos módulos.\nDetalhes: docs/cronograma-software.md
+TRANSP:OPAQUE
+LOCATION:Online (Discord)
+BEGIN:VALARM
+ACTION:DISPLAY
+TRIGGER:-PT1H
+DESCRIPTION:This is an event reminder
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+DTSTART;VALUE=DATE:20261117
+DTEND;VALUE=DATE:20261118
+DTSTAMP:20261113T220000Z
+UID:sw-c3ccced67c8c49cd@balloone-g4
+STATUS:CONFIRMED
+SUMMARY:Titans · Software: prazo D-002 (onde roda o WebSocket)
+DESCRIPTION:A (Rede) decide: opção A (servidor da porta 80) ou B (ESPAsyn
+ cWebServer na 82).\nRegistrar em docs/decisoes/D-002.md. Meta do dia: /ws 
+ devolve o ping e o RTT aparece na interface.
+TRANSP:TRANSPARENT
+BEGIN:VALARM
+ACTION:DISPLAY
+TRIGGER:-P1D
+DESCRIPTION:This is an event reminder
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+DTSTART;VALUE=DATE:20261119
+DTEND;VALUE=DATE:20261120
+DTSTAMP:20261113T220000Z
+UID:sw-bb778f27cdbb820b@balloone-g4
+STATUS:CONFIRMED
+SUMMARY:Titans · Software: INTEGRAÇÃO 1
+DESCRIPTION:Todos juntos. Merge das frentes na main.\nMeta: robô anda pela
+  interface com vídeo\; autoteste "Girar" esquerda/direita funcionando.\nT
+ estar a alimentação com motores + câmera + Wi-Fi juntos.
+TRANSP:OPAQUE
+BEGIN:VALARM
+ACTION:DISPLAY
+TRIGGER:-P1D
+DESCRIPTION:This is an event reminder
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+DTSTART;VALUE=DATE:20261120
+DTEND;VALUE=DATE:20261121
+DTSTAMP:20261113T220000Z
+UID:sw-0d48e0f20042bc3f@balloone-g4
+STATUS:CONFIRMED
+SUMMARY:Titans · Software: failsafe + T-03 e T-05
+DESCRIPTION:A: failsafe das camadas 2 e 3\, um operador por vez\, rssi.\nB:
+  reteste rápido do FPS do T-01 no firmware próprio\; LED\; bateria.\nC: 
+ ajustar ke/kd para andar reto.\nD: T-03 (RTT) e T-05 (queda de conexão).
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+DTSTART;VALUE=DATE:20261121
+DTEND;VALUE=DATE:20261123
+DTSTAMP:20261113T220000Z
+UID:sw-b26c1ebebe3cb926@balloone-g4
+STATUS:CONFIRMED
+SUMMARY:Titans · Software: preparar o PC2
+DESCRIPTION:Correções da Integração 1.\n- Demonstração ensaiada + ví
+ deo de backup\n- Slides com os números do T-01\, T-02\, T-03 e T-05\n- Su
+ bir os CSVs do T-01 e do T-02 em testes/\nMeta: robô anda com vídeo\, 3 
+ camadas do failsafe ao vivo\, FPS e RTT medidos.
+TRANSP:TRANSPARENT
+BEGIN:VALARM
+ACTION:DISPLAY
+TRIGGER:-P1D
+DESCRIPTION:This is an event reminder
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+DTSTART;VALUE=DATE:20261123
+DTEND;VALUE=DATE:20261124
+DTSTAMP:20261113T220000Z
+UID:sw-01f2fcd22cc7dfff@balloone-g4
+STATUS:CONFIRMED
+SUMMARY:Titans · Software: comentários do PC2 viram issues
+DESCRIPTION:No mesmo dia do PC2: cada comentário da banca vira uma issue c
+ om um dono.
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+DTSTART;VALUE=DATE:20261126
+DTEND;VALUE=DATE:20261127
+DTSTAMP:20261113T220000Z
+UID:sw-d72e8153ec1aa0ff@balloone-g4
+STATUS:CONFIRMED
+SUMMARY:Titans · Software: INTEGRAÇÃO 2 · teste em campo
+DESCRIPTION:Na Praça Solar.\n- T-07 (alcance)\n- Vídeo no sol (ae_level)\
+ n- Balão de verdade e calibração da mira
+TRANSP:OPAQUE
+BEGIN:VALARM
+ACTION:DISPLAY
+TRIGGER:-P1D
+DESCRIPTION:This is an event reminder
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+DTSTART;VALUE=DATE:20261127
+DTEND;VALUE=DATE:20261128
+DTSTAMP:20261113T220000Z
+UID:sw-d9765de785acd1d2@balloone-g4
+STATUS:CONFIRMED
+SUMMARY:Titans · Software: T-08 (15 min) + duração da bateria
+DESCRIPTION:15 min ligado com vídeo e comandos sem travar. Medir quanto te
+ mpo a bateria dura.
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+DTSTART:20261130T020000Z
+DTEND:20261130T023000Z
+DTSTAMP:20261113T220000Z
+UID:sw-75e826db248d4ad2@balloone-g4
+STATUS:CONFIRMED
+SUMMARY:Titans · Software: CODE FREEZE
+DESCRIPTION:Dom 29/11 às 23h. Tag v1.0 na main e protocolo v1.0.\nDepois d
+ isso\, só correção de bug com PR revisado.
+TRANSP:OPAQUE
+BEGIN:VALARM
+ACTION:DISPLAY
+TRIGGER:-P1D
+DESCRIPTION:This is an event reminder
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+DTSTART;VALUE=DATE:20261130
+DTEND;VALUE=DATE:20261203
+DTSTAMP:20261113T220000Z
+UID:sw-a390701aeeca14e7@balloone-g4
+STATUS:CONFIRMED
+SUMMARY:Titans · Software: só correção de bug + treino de pilotagem
+DESCRIPTION:Correção de bug sempre com PR revisado.\nTreino do operador n
+ o robô real e no simulador.
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+DTSTART;VALUE=DATE:20261202
+DTEND;VALUE=DATE:20261203
+DTSTAMP:20261113T220000Z
+UID:sw-49fe0889f39b9d5f@balloone-g4
+STATUS:CONFIRMED
+SUMMARY:Titans · Software: rascunho da seção do relatório
+DESCRIPTION:Cada frente escreve a sua parte\; D junta.\nArquitetura\, proto
+ colo\, failsafe e gráficos dos testes (CSVs de testes/).
+TRANSP:TRANSPARENT
+BEGIN:VALARM
+ACTION:DISPLAY
+TRIGGER:-P1D
+DESCRIPTION:This is an event reminder
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+DTSTART;VALUE=DATE:20261203
+DTEND;VALUE=DATE:20261204
+DTSTAMP:20261113T220000Z
+UID:sw-0871cae2dd185e7e@balloone-g4
+STATUS:CONFIRMED
+SUMMARY:Titans · Software: ENSAIO GERAL
+DESCRIPTION:Simular o dia da prova: ligar\, autoteste\, round\, troca de ba
+ teria\, queda de conexão.\nEscrever o checklist do dia.
+TRANSP:OPAQUE
+BEGIN:VALARM
+ACTION:DISPLAY
+TRIGGER:-P1D
+DESCRIPTION:This is an event reminder
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+DTSTART;VALUE=DATE:20261204
+DTEND;VALUE=DATE:20261205
+DTSTAMP:20261113T220000Z
+UID:sw-edab79cdba247de5@balloone-g4
+STATUS:CONFIRMED
+SUMMARY:Titans · Software: preparação final
+DESCRIPTION:- Firmware final gravado na placa e numa reserva\n- pnpm build 
+ no notebook do operador\n- Baterias carregadas\n- Separar: notebook\, cont
+ role\, cabo USB\, placa reserva\, secrets.h
+TRANSP:TRANSPARENT
+END:VEVENT
+END:VCALENDAR
